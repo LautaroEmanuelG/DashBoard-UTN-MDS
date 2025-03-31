@@ -1,0 +1,57 @@
+1. Instalar Docker Desktop
+   - Descarga Docker Desktop desde el sitio oficial de Docker (https://www.docker.com/products/docker-desktop) e instálalo siguiendo las instrucciones para tu sistema operativo.
+
+2. Abrir Tres Terminales Separadas
+   - Abre tres terminales o ventanas de consola para poder ejecutar los diferentes comandos simultáneamente. Puedes usar cualquier terminal que prefieras (Terminal en macOS, PowerShell en Windows, o tu terminal de elección en Linux).
+
+3. Crear una Red de Docker (Network)
+   Para crear una red de Docker llamada `app_network`, ejecuta el siguiente comando en una de las terminales:
+
+   docker network create app_network
+
+   Esto crea una red personalizada en Docker, la cual permitirá que los contenedores se comuniquen entre sí.
+
+4. Levantar Redis con Docker
+   En otra terminal, ejecuta el siguiente comando para levantar un contenedor de Redis y conectarlo a la red `app_network`:
+
+   docker run --name redis_dev -p 6379:6379 --network app_network redis:latest
+
+   - `--name redis_dev`: Asigna un nombre al contenedor (en este caso, `redis_dev`).
+   - `-p 6379:6379`: Mapea el puerto 6379 de Redis dentro del contenedor al puerto 6379 de tu máquina local.
+   - `--network app_network`: Conecta el contenedor a la red `app_network` creada en el paso anterior.
+   
+   Redis estará corriendo en tu máquina en el puerto 6379.
+
+5. Levantar la Base de Datos MySQL
+   En una tercera terminal, ejecuta el siguiente comando para levantar un contenedor de MySQL, configurando una base de datos `menu_digital`:
+
+   docker run --name db_menudigital -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=menu_digital -p 3306:3306 --network app_network mysql:5.7
+
+   - `--name db_menudigital`: Asigna un nombre al contenedor (en este caso, `db_menudigital`).
+   - `-e MYSQL_ALLOW_EMPTY_PASSWORD=yes`: Permite que MySQL se inicie sin contraseña (para un entorno de desarrollo).
+   - `-e MYSQL_DATABASE=menu_digital`: Crea automáticamente una base de datos llamada `menu_digital`.
+   - `-p 3306:3306`: Mapea el puerto 3306 de MySQL dentro del contenedor al puerto 3306 de tu máquina local.
+   - `--network app_network`: Conecta el contenedor a la red `app_network`.
+
+6. Levantar la Aplicación
+   Finalmente, en la misma terminal donde levantas Redis o en una nueva, ejecuta el siguiente comando para levantar tu aplicación:
+
+   docker run -p 8090:8090 --network app_network enferrela/dashboard-back:v3
+
+   - `-p 8090:8090`: Mapea el puerto 8090 del contenedor al puerto 8090 de tu máquina local.
+   - `--network app_network`: Conecta el contenedor a la red `app_network` para que pueda comunicarse con los demás contenedores (Redis y la base de datos).
+
+7. Una vez realizado todo esto podemos levantar los contenedores directamente desde el docker desktop
+
+
+Resumen:
+1. Instalar Docker Desktop.
+2. Abrir tres terminales para ejecutar los comandos.
+3. Crear una red de Docker: `docker network create app_network`.
+4. Levantar Redis: `docker run --name redis_dev -p 6379:6379 --network app_network redis:latest`.
+5. Levantar MySQL con la base de datos `menu_digital`: `docker run --name db_menudigital -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=menu_digital -p 3306:3306 --network app_network mysql:5.7`.
+6. Levantar la aplicación: `docker run -p 8090:8090 --network app_network enferrela/dashboard-back:v3`.
+7. Una vez realizado todo esto podemos levantar los contenedores directamente desde el docker desktop
+
+Ahora tendrás tus contenedores de Redis, MySQL y tu aplicación ejecutándose y conectados entre sí en la misma red Docker.
+
